@@ -6,7 +6,7 @@
 /*   By: bbashiri <bbashiri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/12/17 14:01:32 by bbashiri          #+#    #+#             */
-/*   Updated: 2018/12/20 04:00:52 by cmelara-         ###   ########.fr       */
+/*   Updated: 2018/12/20 04:27:56 by cmelara-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,8 +76,6 @@ int			check_possibility(t_fil *tetr, char **map, int x, int y)
 			index_x++;
 			index_y++;
 		}
-		//printf("\n");
-		//print_map(map, 10);
 		return (1);
 	}
 	return (0);
@@ -89,6 +87,7 @@ int			place_tetrimino(t_fil *tetriminos,
 							char **map,
 							int map_size)
 {
+	static int	is_done = 0;
 	int			x;
 	int			y;
 
@@ -99,15 +98,16 @@ int			place_tetrimino(t_fil *tetriminos,
 		x = 0;
 		while (x < map_size)
 		{
+			if (is_done)
+				return (1);
 			if (check_possibility(&tetriminos[i], map, x, y) && i < tetras_size)
-				if (place_tetrimino(tetriminos, i + 1, tetras_size, map,
-											map_size))
-					return (1);
+				is_done = place_tetrimino(tetriminos, i + 1, tetras_size, map,
+											map_size);
 			x++;
 		}
 		y++;
 	}
-	if (i < tetras_size)
+	if (i < tetras_size && !is_done)
 		revert_map(&tetriminos[i - 1], map, map_size);
 	else
 		return (1);
