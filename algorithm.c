@@ -6,7 +6,7 @@
 /*   By: bbashiri <bbashiri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/12/17 14:01:32 by bbashiri          #+#    #+#             */
-/*   Updated: 2018/12/20 04:27:56 by cmelara-         ###   ########.fr       */
+/*   Updated: 2018/12/21 17:53:47 by cmelara-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,7 @@ void		revert_map(t_fil *tetr, char **map, int map_size)
 			if (map[y][x] == tetr->id)
 			{
 				while (index_x < 4)
-				{
-					map[y + tetr->y[index_y]][x + tetr->x[index_x]] = '.';
-					index_x++;
-					index_y++;
-				}
+					map[y + tetr->y[index_y++]][x + tetr->x[index_x++]] = '.';
 				return ;
 			}
 			x++;
@@ -83,32 +79,31 @@ int			check_possibility(t_fil *tetr, char **map, int x, int y)
 
 int			place_tetrimino(t_fil *tetriminos,
 							int i,
-							int tetras_size,
 							char **map,
-							int map_size)
+							t_prefs prefs)
 {
 	static int	is_done = 0;
 	int			x;
 	int			y;
 
-	x = 0;
-	y = 0;
-	while (y < map_size)
+	x = -1;
+	y = -1;
+	while (++y < prefs.map_size - tetriminos[i].height)
 	{
-		x = 0;
-		while (x < map_size)
+		x = -1;
+		while (++x < prefs.map_size - tetriminos[i].width)
 		{
-			if (is_done)
-				return (1);
-			if (check_possibility(&tetriminos[i], map, x, y) && i < tetras_size)
-				is_done = place_tetrimino(tetriminos, i + 1, tetras_size, map,
-											map_size);
-			x++;
+			if (i < prefs.tetras_size)
+			{
+				if (check_possibility(&tetriminos[i], map, x, y))
+					is_done = place_tetrimino(tetriminos, i + 1, map, prefs);
+				if (is_done)
+					return (1);
+			}
 		}
-		y++;
 	}
-	if (i < tetras_size && !is_done)
-		revert_map(&tetriminos[i - 1], map, map_size);
+	if (i < prefs.tetras_size && !is_done)
+		revert_map(&tetriminos[i - 1], map, prefs.map_size);
 	else
 		return (1);
 	return (0);

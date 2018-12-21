@@ -6,35 +6,38 @@
 /*   By: bbashiri <bbashiri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/12/06 13:14:18 by bbashiri          #+#    #+#             */
-/*   Updated: 2018/12/20 00:19:47 by cmelara-         ###   ########.fr       */
+/*   Updated: 2018/12/20 06:28:46 by cmelara-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fillit.h"
 
-int	check_neighbour(t_fil *tmp)
+int		check_neighbour(char *str)
 {
-	int	res;
-	int	i;
-	int	j;
+	int connections;
+	int i;
 
-	res = 0;
-	i = -1;
-	while (++i < 4)
+	i = 0;
+	connections = 0;
+	while (i < 20)
 	{
-		j = -1;
-		while (++j < 4)
+		if (str[i] == '#')
 		{
-			if ((tmp->x[i] == tmp->x[j]) && (tmp->y[i] == tmp->y[j] - 1))
-				res++;
-			if ((tmp->y[i] == tmp->y[j]) && (tmp->x[i] == tmp->x[j] - 1))
-				res++;
+			if ((i + 1) < 20 && str[i + 1] == '#')
+				connections++;
+			if ((i - 1) >= 0 && str[i - 1] == '#')
+				connections++;
+			if ((i + 5) < 20 && str[i + 5] == '#')
+				connections++;
+			if ((i - 5) >= 0 && str[i - 5] == '#')
+				connections++;
 		}
+		i++;
 	}
-	return (res == 3 || res == 4);
+	return (connections == 6 || connections == 8);
 }
 
-int	check_string(char *str, int res)
+int		check_string(char *str, int res)
 {
 	int		count;
 	int		i;
@@ -60,7 +63,7 @@ int	check_string(char *str, int res)
 	return (1);
 }
 
-int	write_structure(t_fil *list, char *str)
+int		write_structure(t_fil *list, char *str)
 {
 	int			i;
 	int			index;
@@ -89,7 +92,15 @@ int	write_structure(t_fil *list, char *str)
 	return (index == 4);
 }
 
-int	check_start(int fd, t_fil *tetr)
+void	fill_width_height(t_fil *list)
+{
+	list->width = 0;
+	list->height = 0;
+	list->width = list->x[3] - list->x[0];
+	list->height = list->y[3] - list->y[0];
+}
+
+int		check_start(int fd, t_fil *tetr)
 {
 	int		check;
 	t_fil	list;
@@ -106,8 +117,9 @@ int	check_start(int fd, t_fil *tetr)
 		if (!write_structure(&list, buff))
 			return (0);
 		tetr[i] = list;
-		/*if (!check_neighbour(&tetr[i]))
-			return (0);*/
+		if (!check_neighbour(buff))
+			return (0);
+		fill_width_height(&tetr[i]);
 		i++;
 	}
 	return (check == 1 ? i : 0);
